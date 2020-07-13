@@ -14,4 +14,4 @@
 1. `npm run start-dev`
 
 ### Docker
-1. `docker run -it --rm -p 45762:80 react:dev` 
+1. `docker run -itd --rm -p 45762:3000 react:current`
