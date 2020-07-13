@@ -3,7 +3,6 @@ import {ITestAttemptDetailView, ITestSummary} from "../../State";
 import {Link} from "react-router-dom";
 import {CallbackButton} from "../General/CallbackButton";
 import {TestSummaryPage} from "../TestSummaryDetail";
-const rp = require('request-promise');
 const ax = require('axios').default;
 
 interface InterfaceProps {
@@ -36,12 +35,11 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 
 	public postServerData(body: any, endpoint: string, put: boolean): Promise<any> {
 		this.post_options.body = body;
-		// this.post_options.uri = `${process.env.REACT_APP_BASE_API_URL}${endpoint}`;
-		this.post_options.uri = `http://quizzapper.com/api/${endpoint}`;
+		this.post_options.uri = `${process.env.REACT_APP_BASE_API_URL}${endpoint}`;
 		this.post_options.method = put ? 'PUT' : 'POST';
 
 		console.log(this.post_options);
-		return ax.post(`http://quizzapper.com/api/${endpoint}`, {
+		return ax.post(this.post_options.uri, {
 			body
 		})
 			.then((parsedBody: any) => {
@@ -89,7 +87,7 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 	}
 
 	public getServerData = (builtURI: string): Promise<any> => {
-		return rp(builtURI)
+		return ax.get(builtURI)
 			.then((d: any) => {
 				return d;
 			})

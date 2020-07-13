@@ -12,8 +12,7 @@ import {authUserContext} from "../../Firebase/AuthUserContext";
 import {TestAttemptQuestionComponent} from "../TestAttemptQuestion";
 import {InputTypes} from "../../Enums/inputTypes";
 import {CountdownComponent} from "../CountdownTimer";
-
-const rp = require('request-promise');
+const ax = require('axios').default;
 
 interface IProps {
 }
@@ -87,7 +86,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
     }
 
     public getServerData = (builtURI: string): Promise<any> => {
-        return rp(builtURI)
+        return ax.get(builtURI)
             .then((d: any) => {
                 return d;
             })
@@ -101,7 +100,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         this.post_options.body = body;
         this.post_options.uri = process.env.REACT_APP_BASE_API_URL + endpoint;
         this.post_options.method = put ? 'PUT' : 'POST';
-        return rp(this.post_options)
+        return ax.post(this.post_options.uri, {body})
             .then((parsedBody: any) => {
                 return parsedBody;
             })

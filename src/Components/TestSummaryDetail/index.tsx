@@ -6,7 +6,7 @@ import {
 } from '../../State';
 import {TestSummaryDetail} from "./TestSummaryDetail";
 import {CallbackButton} from "../General/CallbackButton";
-const rp = require('request-promise');
+const ax = require('axios').default;
 
 interface IProps {
     fromAdmin?: boolean;
@@ -143,7 +143,7 @@ class TestSummaryDetailComponent extends React.Component<IProps, IState> {
     }
 
     public getServerData = (builtURI: string): Promise<any> => {
-        return rp(builtURI)
+        return ax.get(builtURI)
             .then((d: any) => {
                 return d;
             })

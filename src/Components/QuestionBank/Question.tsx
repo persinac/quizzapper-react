@@ -6,7 +6,6 @@ import Select from "react-select";
 import {InputTypes} from "../../Enums/inputTypes";
 import {TEST_TOPICS} from "../../Constants/testOptions";
 import {DIFFICULTY, QUESTION_CATEGORIES, QUESTION_STYLES} from "../../Constants/questionOptions";
-const rp = require('request-promise');
 
 interface InterfaceProps {
     authUser?: any;
@@ -21,30 +20,9 @@ interface IState {
 }
 
 export class Question extends React.Component<InterfaceProps, IState> {
-    private post_options = {
-        method: 'POST',
-        uri: '',
-        body: {
-            some: 'payload'
-        },
-        json: true // Automatically stringifies the body to JSON
-    };
     constructor(props: any) {
         super(props);
         this.state = {doesContainShow: false};
-    }
-
-    public postServerData(body: any, endpoint: string, put: boolean): Promise<any> {
-        this.post_options.body = body;
-        this.post_options.uri = process.env.REACT_APP_BASE_API_URL + endpoint;
-        this.post_options.method = put ? 'PUT' : 'POST';
-        return rp(this.post_options)
-            .then((parsedBody: any) => {
-                return parsedBody;
-            })
-            .catch((err: any) => {
-                return err;
-            });
     }
 
     public componentDidMount() { }
@@ -58,17 +36,6 @@ export class Question extends React.Component<InterfaceProps, IState> {
 
         return shouldUpdate;
     }
-
-    public getServerData = (builtURI: string): Promise<any> => {
-        return rp(builtURI)
-            .then((d: any) => {
-                return d;
-            })
-            .catch((e: any) => {
-                console.log('ERROR!!!!');
-                console.log(e);
-            });
-    };
 
     public render() {
         return this.renderCard();

@@ -5,7 +5,7 @@ import {CallbackButton} from "../General/CallbackButton";
 import {Question} from "./Question";
 import {InputTypes} from "../../Enums/inputTypes";
 import {authUserContext} from "../../Firebase/AuthUserContext";
-const rp = require('request-promise');
+const ax = require('axios').default;
 
 interface InterfaceProps {
 	authUser?: any;
@@ -41,7 +41,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 		this.post_options.body = body;
 		this.post_options.uri = process.env.REACT_APP_BASE_API_URL + endpoint;
 		this.post_options.method = put ? 'PUT' : 'POST';
-		return rp(this.post_options)
+		return ax.post(this.post_options, {body})
 			.then((parsedBody: any) => {
 				return parsedBody;
 			})
@@ -74,7 +74,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 	}
 
 	public getServerData = (builtURI: string): Promise<any> => {
-		return rp(builtURI)
+		return ax.get(builtURI)
 			.then((d: any) => {
 				return d;
 			})
@@ -217,7 +217,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 	/* generic state handler with event */
 	private updateQuestionHandler(question: IQuestion): void {
 		// console.log(val);
-		question.appianVersion = "";
+		question.softwareVersion = "";
 		question.documentation = "";
 		question.helperTextOne = "";
 		question.helperTextTwo = "";

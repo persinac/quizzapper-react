@@ -5,7 +5,6 @@ import {
     ITestAttempt, ITestResponse,
 } from '../../State';
 import {TestAttemptQuestion} from "./TestAttemptQuestion";
-const rp = require('request-promise');
 
 interface IProps {
     submitHandler: any;
@@ -58,15 +57,4 @@ export class TestAttemptQuestionComponent extends React.Component<IProps, IState
             </div>
         );
     }
-
-    public getServerData = (builtURI: string): Promise<any> => {
-        return rp(builtURI)
-            .then((d: any) => {
-                return d;
-            })
-            .catch((e: any) => {
-                console.log('ERROR!!!!');
-                console.log(e);
-            });
-    };
 }
