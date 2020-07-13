@@ -260,7 +260,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         testAttempt.modifiedDatetime = new Date();
         testAttempt.isActive = 1;
         postServerData(
-            this.state.testAttempt,
+            testAttempt,
             "test-attempt",
             false
         ).then((d: any) => {
