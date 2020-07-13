@@ -143,7 +143,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 	private loadQuestionDetails(id: number) {
 		const testSummaryURL = process.env.REACT_APP_BASE_API_URL + 'question/' + id;
 		getServerData(testSummaryURL).then(d => {
-			const parsedD = d.data.length > 0 ? d.data : [];
+			const parsedD = d.data.questionID !== undefined ? d.data : [];
 			this.setState({selectedQuestion: parsedD, currentPage: 1});
 		});
 	}
@@ -201,7 +201,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 		postServerData(question, "question", false)
 			.then((d: any) => {
 				console.log(d);
-				const parsedD = d.data.length > 0 ? d.data : [];
+				const parsedD = d.data.questionID !== undefined ? d.data : [];
 				this.setState(() => ({
 					selectedQuestion: parsedD
 				}));

@@ -308,7 +308,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         // console.log(questionURL);
         getServerData(questionURL).then((d: any) => {
             console.log(d);
-            const parsedD = d.data.length > 0 ? d.data : [];
+            const parsedD = d.data.questionID !== undefined ? d.data : null;
             this.setState({
                 currentQuestion: parsedD,
                 testPage: currentPage
