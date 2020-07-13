@@ -265,7 +265,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
             false
         ).then((d: any) => {
             console.log(d);
-            const parsedD = d.data.length > 0 ? d.data : [];
+            const parsedD = d.data.testAttempt !== undefined ? d.data : [];
             console.log(parsedD);
             this.setState({
                 page: PAGE_TEST,
@@ -292,7 +292,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
             false
         ).then((d: any) => {
             console.log(d);
-            const parsedD = d.data.length > 0 ? d.data : [];
+            const parsedD = d.data.testAttempt !== undefined ? d.data : [];
             this.setState({
                 page: PAGE_TEST_SUMMARY,
                 testAttempt: parsedD.testAttempt,
