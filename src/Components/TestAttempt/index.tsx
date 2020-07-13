@@ -12,6 +12,7 @@ import {authUserContext} from "../../Firebase/AuthUserContext";
 import {TestAttemptQuestionComponent} from "../TestAttemptQuestion";
 import {InputTypes} from "../../Enums/inputTypes";
 import {CountdownComponent} from "../CountdownTimer";
+import {getServerData, postServerData} from "../../Utility/APIRequests/getOrRequestData";
 const ax = require('axios').default;
 
 interface IProps {
@@ -76,37 +77,13 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         if(this.orderID !== null) {
             const orderURL = `${process.env.REACT_APP_BASE_API_URL}order/${this.orderID}`;
             console.log(orderURL);
-            await this.getServerData(orderURL).then(d => {
-                const parsedD: any = JSON.parse(d);
+            await getServerData(orderURL).then(d => {
+                const parsedD: any = JSON.parse(d.data);
                 this.setState({
                     testAttempt: parsedD.order
                 });
             });
         }
-    }
-
-    public getServerData = (builtURI: string): Promise<any> => {
-        return ax.get(builtURI)
-            .then((d: any) => {
-                return d;
-            })
-            .catch((e: any) => {
-                console.log('ERROR!!!!');
-                console.log(e);
-            });
-    };
-
-    public postServerData(body: any, endpoint: string, put: boolean): Promise<any> {
-        this.post_options.body = body;
-        this.post_options.uri = process.env.REACT_APP_BASE_API_URL + endpoint;
-        this.post_options.method = put ? 'PUT' : 'POST';
-        return ax.post(this.post_options.uri, {body})
-            .then((parsedBody: any) => {
-                return parsedBody;
-            })
-            .catch((err: any) => {
-                return err;
-            });
     }
 
     public render() {
@@ -295,16 +272,16 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         testAttempt.modifiedBy = authUser.username;
         testAttempt.modifiedDatetime = new Date();
         testAttempt.isActive = 1;
-        this.postServerData(
+        postServerData(
             this.state.testAttempt,
             "test-attempt",
             false
         ).then((v: any) => {
-            console.log(v);
+            console.log(v.data);
             this.setState({
                 page: PAGE_TEST,
-                testAttempt: v.testAttempt,
-                testResponses: v.testResponse
+                testAttempt: v.data.testAttempt,
+                testResponses: v.data.testResponse
             });
             this.pageThroughTest(0);
         });
@@ -320,16 +297,16 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
             testAttempt: testAttempt,
             testResponse: testResponses
         };
-        this.postServerData(
+        postServerData(
             iRequest,
             "test-attempt/submit",
             false
         ).then((v: any) => {
-            console.log(v);
+            console.log(v.data);
             this.setState({
                 page: PAGE_TEST_SUMMARY,
-                testAttempt: v.testAttempt,
-                testResponses: v.testResponse
+                testAttempt: v.data.testAttempt,
+                testResponses: v.data.testResponse
             });
         });
     }
@@ -339,8 +316,8 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         const questionID = testResponses[currentPage].questionID;
         const questionURL = `${process.env.REACT_APP_BASE_API_URL}question/${questionID}`;
         // console.log(questionURL);
-        this.getServerData(questionURL).then(d => {
-            const parsedD: any = JSON.parse(d);
+        getServerData(questionURL).then(d => {
+            const parsedD: any = JSON.parse(d.data);
             this.setState({
                 currentQuestion: parsedD,
                 testPage: currentPage

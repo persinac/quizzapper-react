@@ -6,6 +6,7 @@ import {
 } from '../../State';
 import {TestSummaryDetail} from "./TestSummaryDetail";
 import {CallbackButton} from "../General/CallbackButton";
+import {getServerData} from "../../Utility/APIRequests/getOrRequestData";
 const ax = require('axios').default;
 
 interface IProps {
@@ -127,8 +128,8 @@ class TestSummaryDetailComponent extends React.Component<IProps, IState> {
 
     private loadQuestionResponseDetails(responseID: number) {
         const url = process.env.REACT_APP_BASE_API_URL + 'test-summary/detail/response/' + responseID;
-        this.getServerData(url).then(d => {
-            const parsedD = JSON.parse(d);
+        getServerData(url).then(d => {
+            const parsedD = JSON.parse(d.data);
             this.setState({
                 viewQuestionDetails: true,
                 testResponse: parsedD.testResponse,
@@ -141,17 +142,6 @@ class TestSummaryDetailComponent extends React.Component<IProps, IState> {
     private loadSummaryView() {
         this.setState({viewQuestionDetails: false})
     }
-
-    public getServerData = (builtURI: string): Promise<any> => {
-        return ax.get(builtURI)
-            .then((d: any) => {
-                return d;
-            })
-            .catch((e: any) => {
-                console.log('ERROR!!!!');
-                console.log(e);
-            });
-    };
 }
 
 export const TestSummaryPage = TestSummaryDetailComponent;

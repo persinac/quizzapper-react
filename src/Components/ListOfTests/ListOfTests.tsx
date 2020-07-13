@@ -20,35 +20,10 @@ interface IState {
 }
 
 export class ListOfTests extends React.Component<InterfaceProps, IState> {
-	private post_options = {
-		method: 'POST',
-		uri: '',
-		body: {
-			some: 'payload'
-		},
-		json: true // Automatically stringifies the body to JSON
-	};
 	constructor(props: any) {
 		super(props);
 		this.state = {doesContainShow: false, currentPage: 0};
 	}
-
-	// public postServerData(body: any, endpoint: string, put: boolean): Promise<any> {
-	// 	this.post_options.body = body;
-	// 	this.post_options.uri = `${process.env.REACT_APP_BASE_API_URL}${endpoint}`;
-	// 	this.post_options.method = put ? 'PUT' : 'POST';
-	//
-	// 	console.log(this.post_options);
-	// 	return ax.post(this.post_options.uri, {
-	// 		body
-	// 	});
-	// 		.then((parsedBody: any) => {
-	// 			return parsedBody;
-	// 		})
-	// 		.catch((err: any) => {
-	// 			return err;
-	// 		});
-	// }
 
 	public componentDidMount() {
 		// this will need to be a view in order to get all the data we want to highlight
@@ -92,10 +67,6 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 
 		return shouldUpdate;
 	}
-
-	// public getServerData = (builtURI: string): Promise<any> => {
-	// 	return ax.get(builtURI);
-	// };
 
 	public render() {
 		if(this.state.currentPage === 0) {

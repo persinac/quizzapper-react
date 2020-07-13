@@ -5,7 +5,7 @@ import {CallbackButton} from "../General/CallbackButton";
 import {Question} from "./Question";
 import {InputTypes} from "../../Enums/inputTypes";
 import {authUserContext} from "../../Firebase/AuthUserContext";
-const ax = require('axios').default;
+import {getServerData, postServerData} from "../../Utility/APIRequests/getOrRequestData";
 
 interface InterfaceProps {
 	authUser?: any;
@@ -37,24 +37,11 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 		this.state = {doesContainShow: false, currentPage: 0};
 	}
 
-	public postServerData(body: any, endpoint: string, put: boolean): Promise<any> {
-		this.post_options.body = body;
-		this.post_options.uri = process.env.REACT_APP_BASE_API_URL + endpoint;
-		this.post_options.method = put ? 'PUT' : 'POST';
-		return ax.post(this.post_options, {body})
-			.then((parsedBody: any) => {
-				return parsedBody;
-			})
-			.catch((err: any) => {
-				return err;
-			});
-	}
-
 	public componentDidMount() {
 		// this will need to be a view in order to get all the data we want to highlight
 		const questionURL = process.env.REACT_APP_BASE_API_URL + 'question';
-		this.getServerData(questionURL).then(d => {
-			const parsedD = JSON.parse(d);
+		getServerData(questionURL).then(d => {
+			const parsedD = JSON.parse(d.data);
 			this.setState({questions: parsedD});
 		});
 	}
@@ -72,17 +59,6 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 
 		return shouldUpdate;
 	}
-
-	public getServerData = (builtURI: string): Promise<any> => {
-		return ax.get(builtURI)
-			.then((d: any) => {
-				return d;
-			})
-			.catch((e: any) => {
-				console.log('ERROR!!!!');
-				console.log(e);
-			});
-	};
 
 	public render() {
 		if(this.state.currentPage === 0) {
@@ -165,16 +141,16 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 
 	private loadQuestionDetails(id: number) {
 		const testSummaryURL = process.env.REACT_APP_BASE_API_URL + 'question/' + id;
-		this.getServerData(testSummaryURL).then(d => {
-			const parsedD = JSON.parse(d);
+		getServerData(testSummaryURL).then(d => {
+			const parsedD = JSON.parse(d.data);
 			this.setState({selectedQuestion: parsedD, currentPage: 1});
 		});
 	}
 
 	private backToSummaryList() {
 		const questionURL = process.env.REACT_APP_BASE_API_URL + 'question';
-		this.getServerData(questionURL).then(d => {
-			const parsedD = JSON.parse(d);
+		getServerData(questionURL).then(d => {
+			const parsedD = JSON.parse(d.data);
 			this.setState({questions: parsedD, currentPage: 0, selectedQuestion: null, isNewQuestion: null});
 		});
 	}
@@ -221,10 +197,11 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 		question.documentation = "";
 		question.helperTextOne = "";
 		question.helperTextTwo = "";
-		this.postServerData(question, "question", false)
-			.then((v: IQuestion) => {
+		postServerData(question, "question", false)
+			.then((v: any) => {
+				console.log(v.data);
 				this.setState(() => ({
-					selectedQuestion: v
+					selectedQuestion: v.data
 				}));
 			});
 
