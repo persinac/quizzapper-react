@@ -41,13 +41,13 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 		console.log(this.post_options);
 		return ax.post(this.post_options.uri, {
 			body
-		})
-			.then((parsedBody: any) => {
-				return parsedBody;
-			})
-			.catch((err: any) => {
-				return err;
-			});
+		});
+			// .then((parsedBody: any) => {
+			// 	return parsedBody;
+			// })
+			// .catch((err: any) => {
+			// 	return err;
+			// });
 	}
 
 	public componentDidMount() {
@@ -87,14 +87,14 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 	}
 
 	public getServerData = (builtURI: string): Promise<any> => {
-		return ax.get(builtURI)
-			.then((d: any) => {
-				return d;
-			})
-			.catch((e: any) => {
-				console.log('ERROR!!!!');
-				console.log(e);
-			});
+		return ax.get(builtURI);
+			// .then((d: any) => {
+			// 	return d;
+			// })
+			// .catch((e: any) => {
+			// 	console.log('ERROR!!!!');
+			// 	console.log(e);
+			// });
 	};
 
 	public render() {
