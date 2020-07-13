@@ -266,6 +266,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         ).then((d: any) => {
             console.log(d);
             const parsedD = d.data.length > 0 ? d.data : [];
+            console.log(parsedD);
             this.setState({
                 page: PAGE_TEST,
                 testAttempt: parsedD.testAttempt,
