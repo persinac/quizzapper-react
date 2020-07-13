@@ -55,8 +55,8 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 		if (this.props.fromAdmin) {
 			const testSummaryURL = process.env.REACT_APP_BASE_API_URL + 'test-summary';
 			getServerData(testSummaryURL)
-				.then(d => {
-					const parsedD = JSON.parse(d);
+				.then((d) => {
+					const parsedD = JSON.parse(d.data);
 					this.setState({testSummary: parsedD});
 				})
 				.catch((e) => {
@@ -69,6 +69,7 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 					"test-summary",
 					false
 				).then((v: any) => {
+					console.log(v);
 					this.setState({
 						testSummary: v
 					});
@@ -176,7 +177,7 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 		const testSummaryURL = process.env.REACT_APP_BASE_API_URL + 'test-summary/detail/' + summaryID;
 		getServerData(testSummaryURL)
 			.then(d => {
-				const parsedD = JSON.parse(d);
+				const parsedD = JSON.parse(d.data);
 				this.setState({selectedSummaryDetails: parsedD, currentPage: 1, summaryID: summaryID});
 			})
 			.catch((e) => {
