@@ -265,7 +265,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
             false
         ).then((d: any) => {
             console.log(d);
-            const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
+            const parsedD = d.data.length > 0 ? d.data : [];
             this.setState({
                 page: PAGE_TEST,
                 testAttempt: parsedD.testAttempt,
@@ -291,7 +291,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
             false
         ).then((d: any) => {
             console.log(d);
-            const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
+            const parsedD = d.data.length > 0 ? d.data : [];
             this.setState({
                 page: PAGE_TEST_SUMMARY,
                 testAttempt: parsedD.testAttempt,
@@ -307,7 +307,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         // console.log(questionURL);
         getServerData(questionURL).then((d: any) => {
             console.log(d);
-            const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
+            const parsedD = d.data.length > 0 ? d.data : [];
             this.setState({
                 currentQuestion: parsedD,
                 testPage: currentPage

@@ -42,7 +42,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 		const questionURL = process.env.REACT_APP_BASE_API_URL + 'question';
 		getServerData(questionURL).then((d: any) => {
 			console.log(d);
-			const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
+			const parsedD = d.data.length > 0 ? d.data : [];
 			this.setState({questions: parsedD});
 		});
 	}
@@ -143,7 +143,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 	private loadQuestionDetails(id: number) {
 		const testSummaryURL = process.env.REACT_APP_BASE_API_URL + 'question/' + id;
 		getServerData(testSummaryURL).then(d => {
-			const parsedD = JSON.parse(d.data);
+			const parsedD = d.data.length > 0 ? d.data : [];
 			this.setState({selectedQuestion: parsedD, currentPage: 1});
 		});
 	}
@@ -151,7 +151,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 	private backToSummaryList() {
 		const questionURL = process.env.REACT_APP_BASE_API_URL + 'question';
 		getServerData(questionURL).then(d => {
-			const parsedD = JSON.parse(d.data);
+			const parsedD = d.data.length > 0 ? d.data : [];
 			this.setState({questions: parsedD, currentPage: 0, selectedQuestion: null, isNewQuestion: null});
 		});
 	}
@@ -201,7 +201,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 		postServerData(question, "question", false)
 			.then((d: any) => {
 				console.log(d);
-				const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
+				const parsedD = d.data.length > 0 ? d.data : [];
 				this.setState(() => ({
 					selectedQuestion: parsedD
 				}));
