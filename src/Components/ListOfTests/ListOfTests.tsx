@@ -4,6 +4,7 @@ import {Link} from "react-router-dom";
 import {CallbackButton} from "../General/CallbackButton";
 import {TestSummaryPage} from "../TestSummaryDetail";
 const rp = require('request-promise');
+const ax = require('axios').default;
 
 interface InterfaceProps {
 	authUser?: any;
@@ -40,7 +41,9 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 		this.post_options.method = put ? 'PUT' : 'POST';
 
 		console.log(this.post_options);
-		return rp(this.post_options)
+		return ax.post(`http://quizzapper.com/api/${endpoint}`, {
+			body
+		})
 			.then((parsedBody: any) => {
 				return parsedBody;
 			})
