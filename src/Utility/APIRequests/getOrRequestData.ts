@@ -3,7 +3,7 @@ export function postServerData(body: any, endpoint: string, put: boolean): Promi
     console.log(`${process.env.REACT_APP_BASE_API_URL}${endpoint}`);
     console.log(body);
     return ax.post(`${process.env.REACT_APP_BASE_API_URL}${endpoint}`, {
-        body
+        ...body
     });
 }
 
