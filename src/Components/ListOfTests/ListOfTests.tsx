@@ -3,7 +3,7 @@ import {ITestAttemptDetailView, ITestSummary} from "../../State";
 import {Link} from "react-router-dom";
 import {CallbackButton} from "../General/CallbackButton";
 import {TestSummaryPage} from "../TestSummaryDetail";
-const ax = require('axios').default;
+import {getServerData, postServerData} from "../../Utility/APIRequests/getOrRequestData";
 
 interface InterfaceProps {
 	authUser?: any;
@@ -33,35 +33,38 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 		this.state = {doesContainShow: false, currentPage: 0};
 	}
 
-	public postServerData(body: any, endpoint: string, put: boolean): Promise<any> {
-		this.post_options.body = body;
-		this.post_options.uri = `${process.env.REACT_APP_BASE_API_URL}${endpoint}`;
-		this.post_options.method = put ? 'PUT' : 'POST';
-
-		console.log(this.post_options);
-		return ax.post(this.post_options.uri, {
-			body
-		});
-			// .then((parsedBody: any) => {
-			// 	return parsedBody;
-			// })
-			// .catch((err: any) => {
-			// 	return err;
-			// });
-	}
+	// public postServerData(body: any, endpoint: string, put: boolean): Promise<any> {
+	// 	this.post_options.body = body;
+	// 	this.post_options.uri = `${process.env.REACT_APP_BASE_API_URL}${endpoint}`;
+	// 	this.post_options.method = put ? 'PUT' : 'POST';
+	//
+	// 	console.log(this.post_options);
+	// 	return ax.post(this.post_options.uri, {
+	// 		body
+	// 	});
+	// 		.then((parsedBody: any) => {
+	// 			return parsedBody;
+	// 		})
+	// 		.catch((err: any) => {
+	// 			return err;
+	// 		});
+	// }
 
 	public componentDidMount() {
 		// this will need to be a view in order to get all the data we want to highlight
 		if (this.props.fromAdmin) {
 			const testSummaryURL = process.env.REACT_APP_BASE_API_URL + 'test-summary';
-			this.getServerData(testSummaryURL).then(d => {
-				const parsedD = JSON.parse(d);
-				this.setState({testSummary: parsedD});
-			});
+			getServerData(testSummaryURL)
+				.then(d => {
+					const parsedD = JSON.parse(d);
+					this.setState({testSummary: parsedD});
+				})
+				.catch((e) => {
+					console.log(e)
+				});
 		} else {
 			if (!!this.props.authUser.username) {
-				console.log(this.props.authUser.username);
-				this.postServerData(
+				postServerData(
 					{username: this.props.authUser.username},
 					"test-summary",
 					false
@@ -69,6 +72,9 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 					this.setState({
 						testSummary: v
 					});
+				})
+				.catch((e) => {
+					console.log(e)
 				});
 			}
 		}
@@ -86,16 +92,9 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 		return shouldUpdate;
 	}
 
-	public getServerData = (builtURI: string): Promise<any> => {
-		return ax.get(builtURI);
-			// .then((d: any) => {
-			// 	return d;
-			// })
-			// .catch((e: any) => {
-			// 	console.log('ERROR!!!!');
-			// 	console.log(e);
-			// });
-	};
+	// public getServerData = (builtURI: string): Promise<any> => {
+	// 	return ax.get(builtURI);
+	// };
 
 	public render() {
 		if(this.state.currentPage === 0) {
@@ -175,10 +174,14 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 
 	private loadSummaryDetails(summaryID: number) {
 		const testSummaryURL = process.env.REACT_APP_BASE_API_URL + 'test-summary/detail/' + summaryID;
-		this.getServerData(testSummaryURL).then(d => {
-			const parsedD = JSON.parse(d);
-			this.setState({selectedSummaryDetails: parsedD, currentPage: 1, summaryID: summaryID});
-		});
+		getServerData(testSummaryURL)
+			.then(d => {
+				const parsedD = JSON.parse(d);
+				this.setState({selectedSummaryDetails: parsedD, currentPage: 1, summaryID: summaryID});
+			})
+			.catch((e) => {
+				console.log(e)
+			});
 	}
 
 	private backToSummaryList() {
