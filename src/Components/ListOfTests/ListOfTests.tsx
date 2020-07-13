@@ -35,7 +35,8 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 
 	public postServerData(body: any, endpoint: string, put: boolean): Promise<any> {
 		this.post_options.body = body;
-		this.post_options.uri = process.env.REACT_APP_BASE_API_URL + endpoint;
+		// this.post_options.uri = `${process.env.REACT_APP_BASE_API_URL}${endpoint}`;
+		this.post_options.uri = `http://quizzapper.com/api/${endpoint}`;
 		this.post_options.method = put ? 'PUT' : 'POST';
 
 		console.log(this.post_options);
