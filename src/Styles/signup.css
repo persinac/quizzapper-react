@@ -1,0 +1,9 @@
+.signup-height {
+    height: 475px !important;
+}
+
+.signup-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

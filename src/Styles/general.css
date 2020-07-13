@@ -1,0 +1,74 @@
+#root {
+    height: 100%;
+    /*overflow: hidden;*/
+}
+
+.height-100 {
+    height: 100%;
+}
+
+.width-100 {
+    width: 100% !important;
+}
+
+.width-50 {
+    width: 50%;
+}
+
+.signin-error {
+    position: absolute;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    color: white;
+}
+
+.signin-container {
+    background-image: url('../slide-2.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.floater-rght {
+    float: right;
+}
+
+.floater-left {
+    float: left;
+}
+
+.nopadding {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.sales-form-card-overflow-height-300 {
+    padding: 1em;
+    height: 325px;
+    overflow-y: scroll;
+}
+
+.sales-form-card-overflow-height-auto {
+    padding: 1em;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.margin-l-10 {
+    margin-left: 10px;
+}
+
+.margin-t-10 {
+    margin-top: 10px;
+}
+
+.margin-r-10 {
+    margin-right: 10px;
+}
+
+a {
+    cursor: pointer;
+}
+
+.the-lonely-card {
+    border-radius: 0.25rem;
+}

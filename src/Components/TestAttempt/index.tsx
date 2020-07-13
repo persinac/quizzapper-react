@@ -1,0 +1,426 @@
+import React from 'react';
+import '../../Styles/general.css';
+import {
+    ICreateTestResponse,
+    IQuestion,
+    ITestAttempt,
+    ITestResponse
+} from '../../State';
+import {PAGE_TEST_SUMMARY, PAGE_TEST_SETUP, PAGE_TEST} from "../../Constants/Pages";
+import {TestAttemptSetupComponent} from "../TestAttemptSetup";
+import {authUserContext} from "../../Firebase/AuthUserContext";
+import {TestAttemptQuestionComponent} from "../TestAttemptQuestion";
+import {InputTypes} from "../../Enums/inputTypes";
+import {CountdownComponent} from "../CountdownTimer";
+
+const rp = require('request-promise');
+
+interface IProps {
+}
+
+interface IState {
+    testAttempt?: ITestAttempt;
+    testResponses?: ITestResponse[];
+    testQuestions?: IQuestion[];
+    currentQuestion?: IQuestion;
+    containerHeight: string;
+    navbarHeight: string;
+    page: number;
+    testPage: number;
+}
+
+class TestAttemptComponent extends React.Component<IProps, IState> {
+    private readonly orderID: number;
+    private static INITIAL_STATE = {
+        containerHeight: '',
+        navbarHeight: '',
+        testAttempt: {testAttemptID: 0, testLevel: "3", numberOfQuestions: 35, timeLimit: 30},
+        error: '',
+        page: 0,
+        testPage: 0
+    };
+
+    private post_options = {
+        method: 'POST',
+        uri: '',
+        body: {
+            some: 'payload'
+        },
+        json: true // Automatically stringifies the body to JSON
+    };
+
+    constructor(props: any) {
+        super(props);
+
+
+        this.setTestAttemptStateWithEvent = this.setTestAttemptStateWithEvent.bind(this);
+        this.setTestResponseStateWithEvent = this.setTestResponseStateWithEvent.bind(this);
+        this.state = {...TestAttemptComponent.INITIAL_STATE};
+    }
+
+    public componentDidMount() {
+        // this.buildData();
+        const primaryNavBarHeight =  window.getComputedStyle(document.getElementById('primary-navbar'), null).getPropertyValue('height');
+        const hdrHeight = 0;
+        this.setState({containerHeight: `(${primaryNavBarHeight} + ${hdrHeight})`, navbarHeight: primaryNavBarHeight});
+    }
+
+    /* super inefficient right now, but needed to see the state update after POST/GET calls to API server */
+    shouldComponentUpdate(nextProps: IProps, nextState: IState) {
+        // console.log("Should component update - TestAttempt INDEX");
+        // console.log(nextState);
+        // const shouldRerender: boolean = !didToggle;
+        return true;
+    }
+
+    private async buildData() {
+        if(this.orderID !== null) {
+            const orderURL = `${process.env.REACT_APP_BASE_API_URL}order/${this.orderID}`;
+            console.log(orderURL);
+            await this.getServerData(orderURL).then(d => {
+                const parsedD: any = JSON.parse(d);
+                this.setState({
+                    testAttempt: parsedD.order
+                });
+            });
+        }
+    }
+
+    public getServerData = (builtURI: string): Promise<any> => {
+        return rp(builtURI)
+            .then((d: any) => {
+                return d;
+            })
+            .catch((e: any) => {
+                console.log('ERROR!!!!');
+                console.log(e);
+            });
+    };
+
+    public postServerData(body: any, endpoint: string, put: boolean): Promise<any> {
+        this.post_options.body = body;
+        this.post_options.uri = process.env.REACT_APP_BASE_API_URL + endpoint;
+        this.post_options.method = put ? 'PUT' : 'POST';
+        return rp(this.post_options)
+            .then((parsedBody: any) => {
+                return parsedBody;
+            })
+            .catch((err: any) => {
+                return err;
+            });
+    }
+
+    public render() {
+        const {containerHeight, navbarHeight, page, testAttempt: {timeLimit}} = this.state;
+        const rowStyle = {
+            height: `calc(100% - ${containerHeight})`
+        };
+        const containerStyle = {
+            height: `calc(100% - ${navbarHeight})`
+        };
+        let pageClassname = 'col-md-8 order-md-1';
+        // const {page} = this.state;
+        if(page === PAGE_TEST || page === PAGE_TEST_SETUP || page === PAGE_TEST_SUMMARY) {
+        	pageClassname = 'col-md-12 order-md-1';
+        }
+        console.log(page);
+        console.log(timeLimit);
+        return (
+            <authUserContext.Consumer>
+                {authUser => {
+                    return (
+                        <div className={'bg-light height-100'} style={containerStyle}>
+                            <div className={'container'}>
+                                <CountdownComponent currentPage={page} minutes={timeLimit * 60000}/>
+                                <div className={'py-5 text-center'} id={'order-hdr'}/>
+                                <div className={'row'} style={rowStyle}>
+                                    <div className={pageClassname}>
+                                        {this.renderPage()}
+                                        <hr />
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className={'row'}>
+                                        {this.renderButtons(authUser)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )
+                }
+                }
+            </authUserContext.Consumer>
+
+        )
+    }
+
+    private renderPage() {
+        const {page} = this.state;
+        if (page === PAGE_TEST_SETUP) {
+            return this.renderTestAttemptSetup();
+        } else if (page === PAGE_TEST) {
+            return this.renderTestAttemptQuestion();
+        } else {
+            return this.renderTestAttemptSetup();
+        }
+    }
+
+    private renderTestAttemptSetup() {
+        const {testAttempt} = this.state;
+        return (
+            <div>
+                <TestAttemptSetupComponent
+                    testAttempt={testAttempt}
+                    submitHandler={this.setTestAttemptStateWithEvent}
+                />
+            </div>
+        )
+    }
+
+    private renderTestAttemptQuestion() {
+        const {testAttempt, currentQuestion, testResponses, testPage} = this.state;
+        if (!!testResponses) {
+            return (
+                <div>
+                    <TestAttemptQuestionComponent
+                        testAttempt={testAttempt}
+                        submitHandler={this.setTestResponseStateWithEvent}
+                        testResponse={testResponses[testPage]}
+                        testQuestion={currentQuestion}
+                        currentPage={testPage+1}
+                    />
+                </div>
+            )
+        } else {
+            return (
+                <div>
+                </div>
+            )
+        }
+
+    }
+
+    private renderButtons(authUser: any) {
+        const {page, testPage, testResponses} = this.state;
+
+        if (page === PAGE_TEST_SETUP) {
+            return (
+                <div>
+                    <button
+                        type='button'
+                        className='btn btn-outline-primary margin-t-10'
+                        disabled={this.state.testAttempt.testAttemptID === null || this.state.testAttempt.testAttemptID === undefined}
+                        onClick={(e) => {this.startTest(authUser); }}>Start Test
+                    </button>
+                    {(this.state.testAttempt.testAttemptID === null || this.state.testAttempt.testAttemptID === 0) ? null :
+                        <button
+                            type='button'
+                            className='btn btn-outline-secondary margin-t-10 margin-l-10'
+                            onClick={(e) => {
+                                this.setState({page: PAGE_TEST_SUMMARY});
+                            }}>Test Summary
+                        </button>
+                    }
+                </div>
+            );
+        } else if (page === PAGE_TEST) {
+            // console.log(`${testPage} === ${(testResponses.length - 1)} ???`);
+            return (
+                <div className='width-100'>
+                    {
+                        testPage === 0 ? null : <button
+                        type='button'
+                        className='btn btn-outline-primary margin-t-10'
+                        onClick={(e) => {
+                            this.pageThroughTest(testPage - 1);
+                        }}>Previous Question
+                    </button>
+                    }
+                    {
+                        testPage === (testResponses.length - 1) ? null : <button
+                            type='button'
+                            className='btn btn-outline-secondary margin-t-10 margin-l-10'
+                            onClick={(e) => { this.pageThroughTest(testPage + 1); }}>Next Question
+                        </button>
+
+                    }
+                    <button
+                        type='button'
+                        className='btn btn-outline-secondary margin-t-10 margin-l-10 floater-rght'
+                        onClick={(e) => { this.endTest(authUser); }}>Submit Responses
+                    </button>
+                </div>
+            );
+        } else if (page === PAGE_TEST_SUMMARY) {
+            return (
+                <div>
+                    <button
+                        type='button'
+                        className='btn btn-outline-primary margin-t-10'
+                        onClick={(e) => { this.setState({page: PAGE_TEST_SETUP}); }}>Return to Test Setup
+                    </button>
+                </div>
+            );
+        }
+    }
+
+    /* generic state handler with event */
+    private setTestAttemptStateWithEvent(event: any, columnType: string, type: number): void {
+        let val = "";
+        if (type === InputTypes.SELECT) {
+            val = event.value;
+        } else if (type === InputTypes.RADIO) {
+            val = event.value;
+        } else if (type === InputTypes.CHECKBOX) {
+            val = event.target.checked;
+        } else {
+            val = (event.target as any).value;
+        }
+        // console.log(val);
+        this.setState((prevState) => ({
+            testAttempt: {
+                ...prevState.testAttempt,
+                [columnType]: val
+            }
+        }));
+    }
+
+    private startTest(authUser: any): void {
+        const { testAttempt } = this.state;
+        testAttempt.showHelperText = 0;
+        testAttempt.showDocumentation = 0;
+        testAttempt.testAttemptID = null;
+        testAttempt.startDatetime = new Date();
+        testAttempt.createdBy = authUser.username;
+        testAttempt.createdDatetime = new Date();
+        testAttempt.modifiedBy = authUser.username;
+        testAttempt.modifiedDatetime = new Date();
+        testAttempt.isActive = 1;
+        this.postServerData(
+            this.state.testAttempt,
+            "test-attempt",
+            false
+        ).then((v: any) => {
+            console.log(v);
+            this.setState({
+                page: PAGE_TEST,
+                testAttempt: v.testAttempt,
+                testResponses: v.testResponse
+            });
+            this.pageThroughTest(0);
+        });
+    }
+
+    private endTest(authUser: any): void {
+        const { testAttempt, testResponses } = this.state;
+        testAttempt.endDatetime = new Date();
+        testAttempt.userSubmitted = 1;
+        testAttempt.modifiedBy = authUser.username;
+        testAttempt.modifiedDatetime = new Date();
+        const iRequest: ICreateTestResponse = {
+            testAttempt: testAttempt,
+            testResponse: testResponses
+        };
+        this.postServerData(
+            iRequest,
+            "test-attempt/submit",
+            false
+        ).then((v: any) => {
+            console.log(v);
+            this.setState({
+                page: PAGE_TEST_SUMMARY,
+                testAttempt: v.testAttempt,
+                testResponses: v.testResponse
+            });
+        });
+    }
+
+    private pageThroughTest(currentPage: number) {
+        const {testResponses} = this.state;
+        const questionID = testResponses[currentPage].questionID;
+        const questionURL = `${process.env.REACT_APP_BASE_API_URL}question/${questionID}`;
+        // console.log(questionURL);
+        this.getServerData(questionURL).then(d => {
+            const parsedD: any = JSON.parse(d);
+            this.setState({
+                currentQuestion: parsedD,
+                testPage: currentPage
+            });
+        });
+    }
+
+    /* generic state handler for test taking */
+    private setTestResponseStateWithEvent(event: any, columnType: string, type: number, addOrRemove: string, questionID: number, questionValue: number): void {
+        const { testResponses } = this.state;
+        const val = (event.target as any).value;
+
+        this.setState((prevState) => ({
+            testResponses: this.onUpdateResponse(testResponses, questionID, type, addOrRemove, val)
+        }));
+    }
+
+    /***
+     * generic state handler for Order Details with event
+     *
+     * index => orderDetailId
+     * */
+    /*private setOrderDetailStateWithEvent(event: any, index: number, columnType: string): void {
+        const val = (event.target as any).value;
+        this.setState({
+            orderDetails: this.onUpdateItem(index, columnType, val)
+        });
+    }
+    */
+
+    private onUpdateResponse = (testResponses: ITestResponse[], questionID: number, inputType: number, addOrRemove: string, value: any) => {
+        let idx = -1;
+
+        testResponses.some((t: ITestResponse, internal_i: number) => {
+            if (t.questionID === questionID) {
+                idx = internal_i;
+                return true;
+            }
+            return false;
+        });
+        let item: ITestResponse = testResponses[idx];
+
+        const currentResponse: ITestResponse = testResponses.filter((t: ITestResponse) => {
+            return t.questionID === questionID;
+        })[0];
+
+        let actualResponse = currentResponse.response;
+        if (inputType === InputTypes.RADIO) {
+            actualResponse = value;
+        } else {
+            let splitResponses: string[] = !!actualResponse ? actualResponse.split(";") : [];
+            if (addOrRemove === "A") {
+                if (!!actualResponse) {
+                    if (actualResponse.length > 0) {
+                        splitResponses.push(value);
+                        actualResponse = splitResponses.join(";");
+                    } else {
+                        actualResponse = value;
+                    }
+                } else {
+                    actualResponse = value;
+                }
+            } else if (addOrRemove === "R") {
+                if (!!actualResponse) {
+                    if (actualResponse.length > 1) {
+                        splitResponses.splice(splitResponses.indexOf(value), 1);
+                        actualResponse = splitResponses.join(";");
+                    } else {
+                        actualResponse = null;
+                    }
+                } else {
+                    actualResponse = null;
+                }
+            }
+        }
+        currentResponse.response = actualResponse;
+        testResponses[idx] = item;
+        return testResponses;
+    };
+}
+
+export const TestAttemptPage = TestAttemptComponent;
