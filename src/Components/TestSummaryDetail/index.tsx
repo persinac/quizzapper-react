@@ -129,7 +129,7 @@ class TestSummaryDetailComponent extends React.Component<IProps, IState> {
     private loadQuestionResponseDetails(responseID: number) {
         const url = process.env.REACT_APP_BASE_API_URL + 'test-summary/detail/response/' + responseID;
         getServerData(url).then(d => {
-            const parsedD = d.data.length > 0 ? d.data : [];
+            const parsedD = d.data.testResponse !== undefined ? d.data : [];
             this.setState({
                 viewQuestionDetails: true,
                 testResponse: parsedD.testResponse,
