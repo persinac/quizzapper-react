@@ -73,19 +73,6 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         return true;
     }
 
-    private async buildData() {
-        if(this.orderID !== null) {
-            const orderURL = `${process.env.REACT_APP_BASE_API_URL}order/${this.orderID}`;
-            console.log(orderURL);
-            await getServerData(orderURL).then(d => {
-                const parsedD: any = JSON.parse(d.data);
-                this.setState({
-                    testAttempt: parsedD.order
-                });
-            });
-        }
-    }
-
     public render() {
         const {containerHeight, navbarHeight, page, testAttempt: {timeLimit}} = this.state;
         const rowStyle = {
@@ -276,12 +263,13 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
             this.state.testAttempt,
             "test-attempt",
             false
-        ).then((v: any) => {
-            console.log(v.data);
+        ).then((d: any) => {
+            console.log(d);
+            const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
             this.setState({
                 page: PAGE_TEST,
-                testAttempt: v.data.testAttempt,
-                testResponses: v.data.testResponse
+                testAttempt: parsedD.testAttempt,
+                testResponses: parsedD.testResponse
             });
             this.pageThroughTest(0);
         });
@@ -301,12 +289,13 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
             iRequest,
             "test-attempt/submit",
             false
-        ).then((v: any) => {
-            console.log(v.data);
+        ).then((d: any) => {
+            console.log(d);
+            const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
             this.setState({
                 page: PAGE_TEST_SUMMARY,
-                testAttempt: v.data.testAttempt,
-                testResponses: v.data.testResponse
+                testAttempt: parsedD.testAttempt,
+                testResponses: parsedD.testResponse
             });
         });
     }
@@ -316,8 +305,9 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         const questionID = testResponses[currentPage].questionID;
         const questionURL = `${process.env.REACT_APP_BASE_API_URL}question/${questionID}`;
         // console.log(questionURL);
-        getServerData(questionURL).then(d => {
-            const parsedD: any = JSON.parse(d.data);
+        getServerData(questionURL).then((d: any) => {
+            console.log(d);
+            const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
             this.setState({
                 currentQuestion: parsedD,
                 testPage: currentPage

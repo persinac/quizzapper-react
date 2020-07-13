@@ -31,7 +31,8 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 			const testSummaryURL = process.env.REACT_APP_BASE_API_URL + 'test-summary';
 			getServerData(testSummaryURL)
 				.then((d) => {
-					const parsedD = JSON.parse(d.data);
+					console.log(d);
+					const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
 					this.setState({testSummary: parsedD});
 				})
 				.catch((e) => {
@@ -43,10 +44,11 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 					{username: this.props.authUser.username},
 					"test-summary",
 					false
-				).then((v: any) => {
-					console.log(v);
+				).then((d: any) => {
+					console.log(d);
+					const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
 					this.setState({
-						testSummary: v
+						testSummary: parsedD
 					});
 				})
 				.catch((e) => {
@@ -147,8 +149,9 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 	private loadSummaryDetails(summaryID: number) {
 		const testSummaryURL = process.env.REACT_APP_BASE_API_URL + 'test-summary/detail/' + summaryID;
 		getServerData(testSummaryURL)
-			.then(d => {
-				const parsedD = JSON.parse(d.data);
+			.then((d: any) => {
+				console.log(d);
+				const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
 				this.setState({selectedSummaryDetails: parsedD, currentPage: 1, summaryID: summaryID});
 			})
 			.catch((e) => {

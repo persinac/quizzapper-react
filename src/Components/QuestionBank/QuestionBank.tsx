@@ -40,8 +40,9 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 	public componentDidMount() {
 		// this will need to be a view in order to get all the data we want to highlight
 		const questionURL = process.env.REACT_APP_BASE_API_URL + 'question';
-		getServerData(questionURL).then(d => {
-			const parsedD = JSON.parse(d.data);
+		getServerData(questionURL).then((d: any) => {
+			console.log(d);
+			const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
 			this.setState({questions: parsedD});
 		});
 	}
@@ -198,10 +199,11 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 		question.helperTextOne = "";
 		question.helperTextTwo = "";
 		postServerData(question, "question", false)
-			.then((v: any) => {
-				console.log(v.data);
+			.then((d: any) => {
+				console.log(d);
+				const parsedD = d.data.length > 0 ? JSON.parse(d.data) : [];
 				this.setState(() => ({
-					selectedQuestion: v.data
+					selectedQuestion: parsedD
 				}));
 			});
 
