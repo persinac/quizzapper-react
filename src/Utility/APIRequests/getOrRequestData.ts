@@ -7,5 +7,6 @@ export function postServerData(body: any, endpoint: string, put: boolean): Promi
 }
 
 export function getServerData(builtURI: string): Promise<any> {
+    console.log(builtURI);
     return ax.get(builtURI);
 }
