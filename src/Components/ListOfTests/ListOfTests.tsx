@@ -37,6 +37,8 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 		this.post_options.body = body;
 		this.post_options.uri = process.env.REACT_APP_BASE_API_URL + endpoint;
 		this.post_options.method = put ? 'PUT' : 'POST';
+
+		console.log(this.post_options);
 		return rp(this.post_options)
 			.then((parsedBody: any) => {
 				return parsedBody;
@@ -56,6 +58,7 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 			});
 		} else {
 			if (!!this.props.authUser.username) {
+				console.log(this.props.authUser.username);
 				this.postServerData(
 					{username: this.props.authUser.username},
 					"test-summary",
