@@ -151,7 +151,7 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 		getServerData(testSummaryURL)
 			.then((d: any) => {
 				console.log(d);
-				const parsedD = d.data.testSummaryID !== undefined ? d.data : [];
+				const parsedD = d.data.length > 0 ? d.data : [];
 				this.setState({selectedSummaryDetails: parsedD, currentPage: 1, summaryID: summaryID});
 			})
 			.catch((e) => {
