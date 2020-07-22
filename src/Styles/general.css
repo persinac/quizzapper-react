@@ -65,6 +65,19 @@
     margin-right: 10px;
 }
 
+.margin-r-perc-5 {
+    margin-right: 5%;
+}
+
+.paging-enabled {
+    color: #17a2b8;
+    cursor: pointer;
+}
+
+.paging-disabled {
+    color: #6c757d
+}
+
 a {
     cursor: pointer;
 }

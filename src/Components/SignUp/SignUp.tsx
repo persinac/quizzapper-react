@@ -39,7 +39,7 @@ const INITIAL_STATE = {
 		message: ""
 	},
 	roles: {
-		isAdmin: true,
+		isAdmin: false,
 		isMember: true
 	}
 };

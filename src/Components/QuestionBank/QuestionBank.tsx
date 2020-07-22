@@ -1,11 +1,14 @@
 import React from "react";
-import {IQuestion} from "../../State";
+import {IPagination, IQuestion, ISort} from "../../State";
 import {Link} from "react-router-dom";
 import {CallbackButton} from "../General/CallbackButton";
 import {Question} from "./Question";
 import {InputTypes} from "../../Enums/inputTypes";
 import {authUserContext} from "../../Firebase/AuthUserContext";
 import {getServerData, postServerData} from "../../Utility/APIRequests/getOrRequestData";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faArrowLeft, faArrowRight, faDungeon} from "@fortawesome/free-solid-svg-icons";
+import {GridPaging} from "../General/GridPaging";
 
 interface InterfaceProps {
 	authUser?: any;
@@ -17,6 +20,9 @@ interface IState {
 	selectedQuestion?: IQuestion;
 	currentPage?: number;
 	isNewQuestion?: boolean;
+	paging?: IPagination;
+	sorting?: ISort[];
+	totalQuestionCount?: number;
 }
 
 export class QuestionBank extends React.Component<InterfaceProps, IState> {
@@ -28,22 +34,38 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 		},
 		json: true // Automatically stringifies the body to JSON
 	};
+	private static INITIAL_PAGING = {startIndex: 0, batchSize: 10};
+	private static INITIAL_SORT = [{sortBy: "questionId", ascDesc: "ASC"}];
 	constructor(props: any) {
 		super(props);
 
 		this.setSelectedQuestionStateWithEvent = this.setSelectedQuestionStateWithEvent.bind(this);
 		this.updateQuestionHandler = this.updateQuestionHandler.bind(this);
 
-		this.state = {doesContainShow: false, currentPage: 0};
+		this.state = {
+			doesContainShow: false,
+			currentPage: 0,
+			paging: QuestionBank.INITIAL_PAGING,
+			sorting: QuestionBank.INITIAL_SORT
+		};
 	}
 
 	public componentDidMount() {
 		// this will need to be a view in order to get all the data we want to highlight
-		const questionURL = process.env.REACT_APP_BASE_API_URL + 'question';
-		getServerData(questionURL).then((d: any) => {
+		postServerData(
+			{
+				pagination: this.state.paging,
+				sort: this.state.sorting
+			},
+			'question',
+			false
+		).then((d: any) => {
 			console.log(d);
-			const parsedD = d.data.length > 0 ? d.data : [];
-			this.setState({questions: parsedD});
+			const parsedD = d.data.totalCount > 0 ? d.data : [];
+			this.setState({
+				questions: parsedD.questions,
+				totalQuestionCount: parsedD.totalCount
+			});
 		});
 	}
 
@@ -79,6 +101,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 						<thead>
 							<tr>
 								<th>Question</th>
+								<th>Topic</th>
 								<th>Category</th>
 								<th>Sub-Category</th>
 								<th>Style</th>
@@ -91,9 +114,16 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 							{this.buildProductHeaderTRs()}
 						</tbody>
 					</table>
+					 <GridPaging
+						 paging={this.state.paging}
+						 forwardPageCallback={() => {this.forwardPage()}}
+						 backwardPageCallback={() => {this.backwardPage()}}
+						 totalCount={this.state.totalQuestionCount}
+					 />
 					<div>
 						<CallbackButton callback={() => {this.createNewQuestion(authUser)}} text={"Create New Question"} theme={"info"}/>
 					</div>
+
 				</div>
 				}}
 			</authUserContext.Consumer>
@@ -126,6 +156,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 
 					<tr key={q.questionID}>
 						<td>{q.question}</td>
+						<td>{q.testTopic}</td>
 						<td>{q.category}</td>
 						<td>{q.subCategory}</td>
 						<td>{q.style}</td>
@@ -148,11 +179,58 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 		});
 	}
 
+	private forwardPage() {
+		console.log(this.state);
+		if ((this.state.paging.startIndex + this.state.paging.batchSize) <= this.state.totalQuestionCount) {
+			this.pageThroughTable(this.state.paging.startIndex + this.state.paging.batchSize)
+		}
+	}
+
+	private backwardPage() {
+		if (this.state.paging.startIndex > 0) {
+			this.pageThroughTable(this.state.paging.startIndex - this.state.paging.batchSize)
+		}
+	}
+
+	private pageThroughTable(newStartIndex: number) {
+		let {paging, sorting} = this.state;
+		paging.startIndex = newStartIndex;
+		postServerData(
+			{
+				pagination: paging,
+				sort: sorting
+			},
+			'question',
+			false
+		).then(d => {
+			const parsedD = d.data.totalCount > 0 ? d.data : [];
+			this.setState({
+				questions: parsedD.questions,
+				paging: paging,
+				totalQuestionCount: parsedD.totalCount
+			});
+		});
+	}
+
 	private backToSummaryList() {
-		const questionURL = process.env.REACT_APP_BASE_API_URL + 'question';
-		getServerData(questionURL).then(d => {
-			const parsedD = d.data.length > 0 ? d.data : [];
-			this.setState({questions: parsedD, currentPage: 0, selectedQuestion: null, isNewQuestion: null});
+		postServerData(
+			{
+				pagination: QuestionBank.INITIAL_PAGING,
+				sort: QuestionBank.INITIAL_SORT
+			},
+			'question',
+			false
+		).then(d => {
+			const parsedD = d.data.totalCount > 0 ? d.data : [];
+			this.setState({
+				questions: parsedD.questions,
+				currentPage: 0,
+				selectedQuestion: null,
+				isNewQuestion: null,
+				paging: QuestionBank.INITIAL_PAGING,
+				sorting: QuestionBank.INITIAL_SORT,
+				totalQuestionCount: parsedD.totalCount
+			});
 		});
 	}
 
@@ -198,7 +276,7 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
 		question.documentation = "";
 		question.helperTextOne = "";
 		question.helperTextTwo = "";
-		postServerData(question, "question", false)
+		postServerData(question, "question/update", false)
 			.then((d: any) => {
 				console.log(d);
 				const parsedD = d.data.questionID !== undefined ? d.data : [];

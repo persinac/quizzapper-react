@@ -116,6 +116,19 @@ export interface ITestAttemptDetailView {
 }
 
 /***
+ * Sorting / Paging
+ */
+export interface IPagination {
+	startIndex: number;
+	batchSize: number;
+}
+
+export interface ISort {
+	sortBy: string;
+	ascDesc: string;
+}
+
+/***
  * Begin specific ERROR component grouping example
  ***/
 export interface SomeValidationError {

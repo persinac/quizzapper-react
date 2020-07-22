@@ -3,7 +3,6 @@ import { db } from './firebase';
 
 // User API
 export const doCreateUser = (id: string, username: string, email: string, roles: Roles): Promise<any> => {
-	console.log("Hello?");
 	return db.ref(`users/${id}`).set({
 		email,
 		username,

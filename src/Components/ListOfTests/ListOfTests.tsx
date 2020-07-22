@@ -1,9 +1,10 @@
 import React from "react";
-import {ITestAttemptDetailView, ITestSummary} from "../../State";
+import {IPagination, ISort, ITestAttemptDetailView, ITestSummary} from "../../State";
 import {Link} from "react-router-dom";
 import {CallbackButton} from "../General/CallbackButton";
 import {TestSummaryPage} from "../TestSummaryDetail";
-import {getServerData, postServerData} from "../../Utility/APIRequests/getOrRequestData";
+import {GridPaging} from "../General/GridPaging";
+import {backwardPage, forwardPage, pageThroughTable} from "../../Utility/APIRequests/paging";
 
 interface InterfaceProps {
 	authUser?: any;
@@ -17,45 +18,35 @@ interface IState {
 	selectedSummaryDetails?: ITestAttemptDetailView[];
 	currentPage?: number;
 	summaryID?: number;
+	paging?: IPagination;
+	sorting?: ISort[];
+	totalTestCount?: number;
+	summaryDetailPaging?: IPagination;
+	summaryDetailSorting?: ISort[];
+	summaryDetailTotalCount?: number;
 }
 
 export class ListOfTests extends React.Component<InterfaceProps, IState> {
+	private static INITIAL_PAGING = {startIndex: 0, batchSize: 2};
+	private static INITIAL_SORT = [{sortBy: "createdDatetime", ascDesc: "ASC"}];
+	private static INITIAL_SUMMARY_DETAILS_PAGING = {startIndex: 0, batchSize: 10};
+	private static INITIAL_SUMMARY_DETAILS_SORT = [{sortBy: "id", ascDesc: "ASC"}];
+
 	constructor(props: any) {
 		super(props);
-		this.state = {doesContainShow: false, currentPage: 0};
+		this.state = {
+			doesContainShow: false,
+			currentPage: 0,
+			paging: ListOfTests.INITIAL_PAGING,
+			sorting: ListOfTests.INITIAL_SORT,
+			summaryDetailPaging: ListOfTests.INITIAL_SUMMARY_DETAILS_PAGING,
+			summaryDetailSorting: ListOfTests.INITIAL_SUMMARY_DETAILS_SORT,
+			summaryDetailTotalCount: 0
+		};
 	}
 
 	public componentDidMount() {
-		// this will need to be a view in order to get all the data we want to highlight
-		if (this.props.fromAdmin) {
-			const testSummaryURL = process.env.REACT_APP_BASE_API_URL + 'test-summary';
-			getServerData(testSummaryURL)
-				.then((d) => {
-					console.log(d);
-					const parsedD = d.data.length > 0 ? d.data : [];
-					this.setState({testSummary: parsedD});
-				})
-				.catch((e) => {
-					console.log(e)
-				});
-		} else {
-			if (!!this.props.authUser.username) {
-				postServerData(
-					{username: this.props.authUser.username},
-					"test-summary",
-					false
-				).then((d: any) => {
-					console.log(d);
-					const parsedD = d.data.length > 0 ? d.data : [];
-					this.setState({
-						testSummary: parsedD
-					});
-				})
-				.catch((e) => {
-					console.log(e)
-				});
-			}
-		}
+		this.pageThroughTable("");
 	}
 
 	public shouldComponentUpdate(nextProps: Readonly<InterfaceProps>, nextState: Readonly<IState>, nextContext: any): boolean {
@@ -65,8 +56,11 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 			shouldUpdate = true;
 		} else if (this.state.testSummary !== nextState.testSummary) {
 			shouldUpdate = true;
+		} else if (this.state.paging !== nextState.paging) {
+			shouldUpdate = true;
+		} else if (this.state.summaryDetailPaging !== nextState.summaryDetailPaging) {
+			shouldUpdate = true;
 		}
-
 		return shouldUpdate;
 	}
 
@@ -81,25 +75,33 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 
 	private renderCard() {
 		return (
-			<div className={'table-responsive'}>
-				<table className={'table table-striped table-sm'}>
-					<thead>
-						<tr>
-							<th>Topic</th>
-							<th>Level</th>
-							<th>Grade</th>
-							<th># Correct</th>
-							<th>Duration</th>
-							<th>Within Time Limit</th>
-							<th>User</th>
-							<th>Taken on</th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						{this.buildProductHeaderTRs()}
-					</tbody>
-				</table>
+			<div>
+				<div className={'table-responsive'}>
+					<table className={'table table-striped table-sm'}>
+						<thead>
+							<tr>
+								<th>Topic</th>
+								<th>Level</th>
+								<th>Grade</th>
+								<th># Correct</th>
+								<th>Duration</th>
+								<th>Within Time Limit</th>
+								<th>User</th>
+								<th>Taken on</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{this.buildProductHeaderTRs()}
+						</tbody>
+					</table>
+				</div>
+				<GridPaging
+					paging={this.state.paging}
+					forwardPageCallback={() => {this.pageThroughTable("F")}}
+					backwardPageCallback={() => {this.pageThroughTable("B")}}
+					totalCount={this.state.totalTestCount}
+				/>
 			</div>
 		);
 	}
@@ -116,6 +118,11 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 						summaryID={this.state.summaryID}
 						testSummary={this.state.selectedSummary}
 						selectedSummaryDetails={this.state.selectedSummaryDetails}
+						paging={this.state.summaryDetailPaging}
+						sorting={this.state.summaryDetailSorting}
+						totalCount={this.state.summaryDetailTotalCount}
+						pageForwardCallback={() => {this.pageThroughSummaryTable("F")}}
+						pageBackwardCallback={() => {this.pageThroughSummaryTable("B")}}
 					/>
 				</div>
 			</div>
@@ -146,21 +153,111 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 		}
 	}
 
+	private pageThroughTable(direction: string) {
+		let {paging, sorting} = this.state;
+		let newStartIndex: number = 0;
+		if (direction === "F") {
+			newStartIndex = forwardPage(paging.startIndex, paging.batchSize, this.state.totalTestCount);
+		} else if (direction === "B") {
+			newStartIndex = backwardPage(paging.startIndex, paging.batchSize);
+		}
+		paging.startIndex = newStartIndex;
+		let endpoint = "test-summary/all";
+		if (this.props.fromAdmin) {
+			endpoint = "test-summary/all";
+		} else {
+			if (!!this.props.authUser.username) {
+				endpoint = `test-summary/${this.props.authUser.username}`;
+			}
+		}
+
+		pageThroughTable(
+			endpoint,
+			paging,
+			sorting,
+			newStartIndex
+		).then((d: any) => {
+			console.log(d);
+			const parsedD = d.data.totalCount > 0 ? d.data : [];
+			this.setState({
+				testSummary: parsedD.testSummary,
+				totalTestCount: parsedD.totalCount,
+				paging: paging
+			});
+		})
+			.catch((e) => {
+				console.log(e)
+			});
+	}
+
+	private pageThroughSummaryTable(direction: string) {
+		let {summaryDetailPaging, summaryDetailSorting} = this.state;
+		let newStartIndex: number = 0;
+		if (direction === "F") {
+			newStartIndex = forwardPage(summaryDetailPaging.startIndex, summaryDetailPaging.batchSize, this.state.summaryDetailTotalCount);
+		} else if (direction === "B") {
+			newStartIndex = backwardPage(summaryDetailPaging.startIndex, summaryDetailPaging.batchSize);
+		}
+		const endpoint = `test-summary/detail/${this.state.summaryID}`;
+
+		pageThroughTable(
+			endpoint,
+			{startIndex: newStartIndex, batchSize: summaryDetailPaging.batchSize},
+			summaryDetailSorting,
+			newStartIndex
+		).then((d: any) => {
+			const parsedD = d.data.totalCount > 0 ? d.data : [];
+			this.setState({
+				selectedSummaryDetails: parsedD.testAttemptDetails,
+				summaryDetailTotalCount: parsedD.totalCount,
+				summaryDetailSorting: summaryDetailSorting,
+				summaryDetailPaging: {startIndex: newStartIndex, batchSize: summaryDetailPaging.batchSize}
+			});
+		})
+			.catch((e) => {
+				console.log(e)
+			});
+	}
+
 	private loadSummaryDetails(summaryID: number) {
-		const testSummaryURL = process.env.REACT_APP_BASE_API_URL + 'test-summary/detail/' + summaryID;
-		getServerData(testSummaryURL)
-			.then((d: any) => {
-				console.log(d);
-				const parsedD = d.data.length > 0 ? d.data : [];
-				this.setState({selectedSummaryDetails: parsedD, currentPage: 1, summaryID: summaryID});
-			})
+		let {summaryDetailPaging, summaryDetailSorting} = this.state;
+		const newStartIndex: number = 0;
+		summaryDetailPaging = ListOfTests.INITIAL_SUMMARY_DETAILS_PAGING;
+		summaryDetailSorting = ListOfTests.INITIAL_SUMMARY_DETAILS_SORT;
+		const endpoint = `test-summary/detail/${summaryID}`;
+
+		pageThroughTable(
+			endpoint,
+			summaryDetailPaging,
+			summaryDetailSorting,
+			newStartIndex
+		).then((d: any) => {
+			const parsedD = d.data.totalCount > 0 ? d.data : [];
+			this.setState({
+				summaryID: summaryID,
+				currentPage: 1,
+				selectedSummaryDetails: parsedD.testAttemptDetails,
+				summaryDetailTotalCount: parsedD.totalCount,
+				summaryDetailSorting: summaryDetailSorting,
+				summaryDetailPaging: summaryDetailPaging
+			});
+		})
 			.catch((e) => {
 				console.log(e)
 			});
 	}
 
 	private backToSummaryList() {
-		this.setState({currentPage: 0, selectedSummaryDetails: null, summaryID: null});
+		this.setState({
+			currentPage: 0,
+			selectedSummaryDetails: null,
+			summaryID: null,
+			paging: ListOfTests.INITIAL_PAGING,
+			sorting: ListOfTests.INITIAL_SORT,
+			summaryDetailPaging: ListOfTests.INITIAL_SUMMARY_DETAILS_PAGING,
+			summaryDetailSorting: ListOfTests.INITIAL_SUMMARY_DETAILS_SORT,
+			summaryDetailTotalCount: 0
+		});
 	}
 }
 

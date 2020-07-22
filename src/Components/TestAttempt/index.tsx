@@ -261,7 +261,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         testAttempt.isActive = 1;
         postServerData(
             testAttempt,
-            "test-attempt",
+            "test-attempt/new",
             false
         ).then((d: any) => {
             console.log(d);

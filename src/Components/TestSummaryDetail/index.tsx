@@ -1,12 +1,14 @@
 import React from 'react';
 import '../../Styles/general.css';
 import {
-    IQuestion,
+    IPagination,
+    IQuestion, ISort,
     ITestAttempt, ITestAttemptDetailView, ITestResponse, ITestSummary,
 } from '../../State';
 import {TestSummaryDetail} from "./TestSummaryDetail";
 import {CallbackButton} from "../General/CallbackButton";
-import {getServerData} from "../../Utility/APIRequests/getOrRequestData";
+import {getServerData, postServerData} from "../../Utility/APIRequests/getOrRequestData";
+import {GridPaging} from "../General/GridPaging";
 const ax = require('axios').default;
 
 interface IProps {
@@ -17,7 +19,12 @@ interface IProps {
     testQuestion?: IQuestion;
     testSummary?: ITestSummary;
     summaryID?: number;
+    paging?: IPagination;
+    sorting?: ISort[];
+    totalCount?: number;
     selectedSummaryDetails?: ITestAttemptDetailView[];
+    pageForwardCallback?: any;
+    pageBackwardCallback?: any;
 }
 
 interface IState {
@@ -34,26 +41,24 @@ class TestSummaryDetailComponent extends React.Component<IProps, IState> {
         viewQuestionDetails: false
     };
 
+
     constructor(props: any) {
         super(props);
 
         this.summaryID = this.props.summaryID;
         this.state = {...TestSummaryDetailComponent.INITIAL_STATE};
-
-
     }
 
     public componentDidMount() { }
 
     /* super inefficient right now, but needed to see the state update after POST/GET calls to API server */
     shouldComponentUpdate(nextProps: IProps, nextState: IState) {
-        // console.log("Should component update - TestAttemptQuestion INDEX");
-        // console.log(nextProps);
-        // const shouldRerender: boolean = !didToggle;
+        console.log(nextProps);
         return true;
     }
 
     public render() {
+        console.log(this.props);
         const {viewQuestionDetails} = this.state;
         return (
             <div>
@@ -87,28 +92,36 @@ class TestSummaryDetailComponent extends React.Component<IProps, IState> {
 
     private renderListOfSummaryDetails() {
         return (
-            <div className={'table-responsive'}>
-                <table className={'table table-striped table-sm'}>
-                    <thead>
-                    <tr>
-                        <th>Question</th>
-                        <th>Answers</th>
-                        <th>Correct Answers</th>
-                        <th>Your Response(s)</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {this.buildProductHeaderTRs()}
-                    </tbody>
-                </table>
+            <div>
+                <div className={'table-responsive'}>
+                    <table className={'table table-striped table-sm'}>
+                        <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Answers</th>
+                            <th>Correct Answers</th>
+                            <th>Your Response(s)</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {this.buildProductHeaderTRs()}
+                        </tbody>
+                    </table>
+                </div>
+                <GridPaging
+                    paging={this.props.paging}
+                    forwardPageCallback={this.props.pageForwardCallback}
+                    backwardPageCallback={this.props.pageBackwardCallback}
+                    totalCount={this.props.totalCount}
+                />
             </div>
         );
     }
 
     private buildProductHeaderTRs() {
-        const {selectedSummaryDetails} = this.props;
-        if (!!selectedSummaryDetails && selectedSummaryDetails.length > 0) {
+        const {selectedSummaryDetails, totalCount} = this.props;
+        if (!!selectedSummaryDetails && totalCount > 0) {
             return selectedSummaryDetails.map((ts: ITestAttemptDetailView) => {
                 return (
 
