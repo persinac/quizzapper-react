@@ -27,7 +27,7 @@ interface IState {
 }
 
 export class ListOfTests extends React.Component<InterfaceProps, IState> {
-	private static INITIAL_PAGING = {startIndex: 0, batchSize: 2};
+	private static INITIAL_PAGING = {startIndex: 0, batchSize: 10};
 	private static INITIAL_SORT = [{sortBy: "createdDatetime", ascDesc: "ASC"}];
 	private static INITIAL_SUMMARY_DETAILS_PAGING = {startIndex: 0, batchSize: 10};
 	private static INITIAL_SUMMARY_DETAILS_SORT = [{sortBy: "id", ascDesc: "ASC"}];
