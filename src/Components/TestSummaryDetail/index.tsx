@@ -53,7 +53,6 @@ class TestSummaryDetailComponent extends React.Component<IProps, IState> {
 
     /* super inefficient right now, but needed to see the state update after POST/GET calls to API server */
     shouldComponentUpdate(nextProps: IProps, nextState: IState) {
-        console.log(nextProps);
         return true;
     }
 
@@ -98,7 +97,6 @@ class TestSummaryDetailComponent extends React.Component<IProps, IState> {
                         <thead>
                         <tr>
                             <th>Question</th>
-                            <th>Answers</th>
                             <th>Correct Answers</th>
                             <th>Your Response(s)</th>
                             <th></th>
@@ -127,7 +125,6 @@ class TestSummaryDetailComponent extends React.Component<IProps, IState> {
 
                     <tr key={ts.testSummaryID}>
                         <td>{ts.question}</td>
-                        <td>{ts.answers}</td>
                         <td>{ts.correctAnswer}</td>
                         <td>{ts.response}</td>
                         <td>

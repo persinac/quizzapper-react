@@ -2,7 +2,7 @@ import React from "react";
 import {IOptions, ITestAttempt} from "../../State";
 import Card from "react-bootstrap/Card";
 import Select from 'react-select';
-import {TEST_TOPICS} from "../../Constants/testOptions";
+import {SHOW_DOCUMENTATION, SHOW_HELPER_TEXT, TEST_TOPICS} from "../../Constants/testOptions";
 import {InputTypes} from "../../Enums/inputTypes";
 
 interface InterfaceProps {
@@ -46,6 +46,14 @@ export class TestAttemptSetup extends React.Component<InterfaceProps, IState> {
         let testTopicValue = !!testTopic ? TEST_TOPICS.filter((o: any) => {
             return o.value === testTopic
         })[0] : {label: '', value: ''};
+
+        let showDocValue = !!showDocumentation ? SHOW_DOCUMENTATION.filter((o: any) => {
+            return o.value === showDocumentation
+        })[0] : {label: '', value: ''};
+
+        let showHelpTextValue = !!showHelperText ? SHOW_HELPER_TEXT.filter((o: any) => {
+            return o.value === showHelperText
+        })[0] : {label: '', value: ''};
         return (
             <div className={'the-lonely-card'}>
                 <Card>
@@ -78,6 +86,7 @@ export class TestAttemptSetup extends React.Component<InterfaceProps, IState> {
                             <input
                                 id={'timeLimit'}
                                 value={timeLimit}
+                                onChange={(event: any) => this.props.submitHandler(event, 'timeLimit')}
                                 type='text'
                                 className={'form-control'}
                             />
@@ -90,31 +99,28 @@ export class TestAttemptSetup extends React.Component<InterfaceProps, IState> {
                             <input
                                 id={'numberOfQuestions'}
                                 value={numberOfQuestions}
+                                onChange={(event: any) => this.props.submitHandler(event, 'numberOfQuestions')}
                                 type='text'
                                 className={'form-control'}
                             />
                         </div>
                         <div className={`col-md-4 mb-3`}>
                             <label htmlFor={`showDocumentation`}>Show Documentation</label>
-                            <input
+                            <Select
                                 id={'showDocumentation'}
-                                value={showDocumentation}
-                                onChange={(event: any) => this.props.submitHandler(event, 'showDocumentation')}
-                                type='text'
-                                placeholder={'showDocumentation'}
-                                className={'form-control'}
+                                value={showDocValue}
+                                onChange={(event: any) => this.props.submitHandler(event, 'showDocumentation', InputTypes.SELECT) }
+                                options={SHOW_DOCUMENTATION}
                             />
                             {/*<ErrorWrapper errorMessage={this.props.productHeaderErrors.e_reference_number} id={'p-q-3'}/>*/}
                         </div>
                         <div className={`col-md-4 mb-3`}>
                             <label htmlFor={`showHelperText`}>Show Helper Text</label>
-                            <input
+                            <Select
                                 id={'showHelperText'}
-                                value={showHelperText}
-                                onChange={(event: any) => this.props.submitHandler(event, 'showHelperText')}
-                                type='text'
-                                placeholder={'showHelperText'}
-                                className={'form-control'}
+                                value={showHelpTextValue}
+                                onChange={(event: any) => this.props.submitHandler(event, 'showHelperText', InputTypes.SELECT) }
+                                options={SHOW_HELPER_TEXT}
                             />
                         </div>
                     </div>

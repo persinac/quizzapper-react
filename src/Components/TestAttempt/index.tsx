@@ -27,6 +27,7 @@ interface IState {
     navbarHeight: string;
     page: number;
     testPage: number;
+    hasSeenAllQuestions: boolean;
 }
 
 class TestAttemptComponent extends React.Component<IProps, IState> {
@@ -37,7 +38,8 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         testAttempt: {testAttemptID: 0, testLevel: "3", numberOfQuestions: 35, timeLimit: 30},
         error: '',
         page: 0,
-        testPage: 0
+        testPage: 0,
+        hasSeenAllQuestions: false
     };
 
     private post_options = {
@@ -164,7 +166,7 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
     }
 
     private renderButtons(authUser: any) {
-        const {page, testPage, testResponses} = this.state;
+        const {page, testPage, testResponses, hasSeenAllQuestions} = this.state;
 
         if (page === PAGE_TEST_SETUP) {
             return (
@@ -202,14 +204,15 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
                     {
                         testPage === (testResponses.length - 1) ? null : <button
                             type='button'
-                            className='btn btn-outline-secondary margin-t-10 margin-l-10'
+                            className='btn btn-outline-primary margin-t-10 margin-l-10'
                             onClick={(e) => { this.pageThroughTest(testPage + 1); }}>Next Question
                         </button>
 
                     }
                     <button
                         type='button'
-                        className='btn btn-outline-secondary margin-t-10 margin-l-10 floater-rght'
+                        className='btn btn-outline-success margin-t-10 margin-l-10 floater-rght'
+                        disabled={!hasSeenAllQuestions}
                         onClick={(e) => { this.endTest(authUser); }}>Submit Responses
                     </button>
                 </div>
@@ -239,7 +242,6 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         } else {
             val = (event.target as any).value;
         }
-        // console.log(val);
         this.setState((prevState) => ({
             testAttempt: {
                 ...prevState.testAttempt,
@@ -250,8 +252,10 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
 
     private startTest(authUser: any): void {
         const { testAttempt } = this.state;
-        testAttempt.showHelperText = 0;
-        testAttempt.showDocumentation = 0;
+        testAttempt.numberOfQuestions = Number(testAttempt.numberOfQuestions) || 35;
+        testAttempt.timeLimit = Number(testAttempt.timeLimit) || 30;
+        testAttempt.showHelperText = Number(testAttempt.showHelperText) || 2;
+        testAttempt.showDocumentation = Number(testAttempt.showDocumentation) || 2;
         testAttempt.testAttemptID = null;
         testAttempt.startDatetime = new Date();
         testAttempt.createdBy = authUser.username;
@@ -302,16 +306,29 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
     }
 
     private pageThroughTest(currentPage: number) {
-        const {testResponses} = this.state;
+        const {testResponses, hasSeenAllQuestions} = this.state;
+        let tempHasSeenQs = hasSeenAllQuestions;
         const questionID = testResponses[currentPage].questionID;
         const questionURL = `${process.env.REACT_APP_BASE_API_URL}question/${questionID}`;
         // console.log(questionURL);
         getServerData(questionURL).then((d: any) => {
-            console.log(d);
+
+
+            if (currentPage === (testResponses.length-1) && !tempHasSeenQs) {
+                tempHasSeenQs = true
+            }
+
+            console.log(`Test Attempt index - page through test`);
+            console.log(tempHasSeenQs);
+            console.log(hasSeenAllQuestions);
+            console.log(currentPage);
+            console.log((testResponses.length-1));
+
             const parsedD = d.data.questionID !== undefined ? d.data : null;
             this.setState({
                 currentQuestion: parsedD,
-                testPage: currentPage
+                testPage: currentPage,
+                hasSeenAllQuestions: tempHasSeenQs
             });
         });
     }
