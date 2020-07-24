@@ -88,8 +88,6 @@ class TestAttemptComponent extends React.Component<IProps, IState> {
         if(page === PAGE_TEST || page === PAGE_TEST_SETUP || page === PAGE_TEST_SUMMARY) {
         	pageClassname = 'col-md-12 order-md-1';
         }
-        console.log(page);
-        console.log(timeLimit);
         return (
             <authUserContext.Consumer>
                 {authUser => {
