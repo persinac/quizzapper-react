@@ -133,9 +133,7 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 		const {testSummary} = this.state;
 		if (!!testSummary && testSummary.length > 0) {
 			return testSummary.map((ts: ITestSummaryView) => {
-				console.log(ts);
 				return (
-
 					<tr key={ts.testSummaryID}>
 						<td>{ts.testTopic}</td>
 						<td>{ts.testLevel}</td>
@@ -178,7 +176,6 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 			sorting,
 			newStartIndex
 		).then((d: any) => {
-			console.log(d);
 			const parsedD = d.data.totalCount > 0 ? d.data : [];
 			this.setState({
 				testSummary: parsedD.testSummary,
