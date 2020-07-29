@@ -157,6 +157,42 @@ export class Question extends React.Component<InterfaceProps, IState> {
                                             />
                                         </div>
                                     </div>
+                                    <hr className="solid" />
+                                    <div className={'row'}>
+                                        <div className={`col-md-8 mb-3`}>
+                                            <label htmlFor={`documentation`}>Documentation</label>
+                                            <input
+                                                id={`documentation`}
+                                                value={selectedQuestion.documentation}
+                                                onChange={(event: any) => this.props.submitHandler(event, 'documentation')}
+                                                type='text'
+                                                className={'form-control'}
+                                            />
+                                            <p><i>Do not include https:// in your link!</i></p>
+                                        </div>
+                                    </div>
+                                    <div className={'row'}>
+                                        <div className={`col-md-6 mb-3`}>
+                                            <label htmlFor={`helperTextOne`}>Hint #1</label>
+                                            <input
+                                                id={`helperTextOne`}
+                                                value={selectedQuestion.helperTextOne}
+                                                onChange={(event: any) => this.props.submitHandler(event, 'helperTextOne')}
+                                                type='text'
+                                                className={'form-control'}
+                                            />
+                                        </div>
+                                        <div className={`col-md-6 mb-3`}>
+                                            <label htmlFor={`helperTextTwo`}>Hint #2</label>
+                                            <input
+                                                id={`helperTextTwo`}
+                                                value={selectedQuestion.helperTextTwo}
+                                                onChange={(event: any) => this.props.submitHandler(event, 'helperTextTwo')}
+                                                type='text'
+                                                className={'form-control'}
+                                            />
+                                        </div>
+                                    </div>
                                 </Card.Body>
                                 <Card.Footer>
                                     <div>

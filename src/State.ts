@@ -129,6 +129,15 @@ export interface ISort {
 }
 
 /***
+ * Filtering
+ */
+export interface IFilterQuery {
+	operator: string;
+	column: string;
+	value: string | number | string[];
+}
+
+/***
  * Begin specific ERROR component grouping example
  ***/
 export interface SomeValidationError {
