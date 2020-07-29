@@ -9,6 +9,7 @@ import {getServerData, postServerData} from "../../Utility/APIRequests/getOrRequ
 import {GridPaging} from "../General/GridPaging";
 import Card from "react-bootstrap/Card";
 import {QuestionFilters} from "./QuestionFilters";
+import {backwardPage, forwardPage, pageThroughTable} from "../../Utility/APIRequests/paging";
 
 interface InterfaceProps {
     authUser?: any;
@@ -137,8 +138,8 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
                             <Card.Footer>
                                 <GridPaging
                                     paging={this.state.paging}
-                                    forwardPageCallback={() => {this.forwardPage()}}
-                                    backwardPageCallback={() => {this.backwardPage()}}
+                                    forwardPageCallback={() => {this.pageThroughQuestionTable("F")}}
+                                    backwardPageCallback={() => {this.pageThroughQuestionTable("B")}}
                                     totalCount={this.state.totalQuestionCount}
                                 />
                                 <div>
@@ -201,29 +202,22 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
         });
     }
 
-    private forwardPage() {
-        console.log(this.state);
-        if ((this.state.paging.startIndex + this.state.paging.batchSize) <= this.state.totalQuestionCount) {
-            this.pageThroughTable(this.state.paging.startIndex + this.state.paging.batchSize)
-        }
-    }
+    private pageThroughQuestionTable(direction: string) {
+        let {paging, sorting, filters} = this.state;
 
-    private backwardPage() {
-        if (this.state.paging.startIndex > 0) {
-            this.pageThroughTable(this.state.paging.startIndex - this.state.paging.batchSize)
+        let newStartIndex: number = 0;
+        if (direction === "F") {
+            newStartIndex = forwardPage(paging.startIndex, paging.batchSize, this.state.totalQuestionCount);
+        } else if (direction === "B") {
+            newStartIndex = backwardPage(paging.startIndex, paging.batchSize);
         }
-    }
-
-    private pageThroughTable(newStartIndex: number) {
-        let {paging, sorting} = this.state;
         paging.startIndex = newStartIndex;
-        postServerData(
-            {
-                pagination: paging,
-                sort: sorting
-            },
+        pageThroughTable(
             'question',
-            false
+            paging,
+            sorting,
+            filters,
+            newStartIndex
         ).then(d => {
             const parsedD = d.data.totalCount > 0 ? d.data : [];
             this.setState({
@@ -237,8 +231,8 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
     private backToSummaryList() {
         postServerData(
             {
-                pagination: QuestionBank.INITIAL_PAGING,
-                sort: QuestionBank.INITIAL_SORT
+                pagination: {startIndex: 0, batchSize: 10},
+                sort: [{sortBy: "questionId", ascDesc: "ASC"}]
             },
             'question',
             false
@@ -249,8 +243,8 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
                 currentPage: 0,
                 selectedQuestion: null,
                 isNewQuestion: null,
-                paging: QuestionBank.INITIAL_PAGING,
-                sorting: QuestionBank.INITIAL_SORT,
+                paging: {startIndex: 0, batchSize: 10},
+                sorting: [{sortBy: "questionId", ascDesc: "ASC"}],
                 totalQuestionCount: parsedD.totalCount
             });
         });
@@ -266,22 +260,24 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
         });
         postServerData(
             {
-                pagination: QuestionBank.INITIAL_PAGING,
-                sort: QuestionBank.INITIAL_SORT,
+                pagination: {startIndex: 0, batchSize: 10},
+                sort: [{sortBy: "questionId", ascDesc: "ASC"}],
                 filters: copyFilter
             },
             'question',
             false
         ).then(d => {
+            console.log(filters);
             const parsedD = d.data.totalCount > 0 ? d.data : [];
             this.setState({
                 questions: parsedD.questions,
                 currentPage: 0,
                 selectedQuestion: null,
                 isNewQuestion: null,
-                paging: QuestionBank.INITIAL_PAGING,
-                sorting: QuestionBank.INITIAL_SORT,
-                totalQuestionCount: parsedD.totalCount
+                paging: {startIndex: 0, batchSize: 10},
+                sorting: [{sortBy: "questionId", ascDesc: "ASC"}],
+                totalQuestionCount: parsedD.totalCount,
+                filters: filters
             });
         });
     }

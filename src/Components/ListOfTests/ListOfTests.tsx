@@ -174,6 +174,7 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 			endpoint,
 			paging,
 			sorting,
+			[],
 			newStartIndex
 		).then((d: any) => {
 			const parsedD = d.data.totalCount > 0 ? d.data : [];
@@ -202,6 +203,7 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 			endpoint,
 			{startIndex: newStartIndex, batchSize: summaryDetailPaging.batchSize},
 			summaryDetailSorting,
+			[],
 			newStartIndex
 		).then((d: any) => {
 			const parsedD = d.data.totalCount > 0 ? d.data : [];
@@ -228,6 +230,7 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 			endpoint,
 			summaryDetailPaging,
 			summaryDetailSorting,
+			[],
 			newStartIndex
 		).then((d: any) => {
 			const parsedD = d.data.totalCount > 0 ? d.data : [];
