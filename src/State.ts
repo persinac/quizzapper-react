@@ -88,6 +88,22 @@ export interface ITestSummary {
 	isActive?: number;
 }
 
+export interface ITestSummaryView {
+	testSummaryID?: number;
+	testAttemptID: number;
+	withinTimeLimit: number;
+	numberCorrect: number;
+	duration: number;
+	grade?: number;
+	testTopic?: number;
+	testLevel?: number;
+	createdBy?: string;
+	createdDatetime?: Date;
+	modifiedBy?: string;
+	modifiedDatetime?: Date;
+	isActive?: number;
+}
+
 export interface ICreateTestResponse {
 	testAttempt?: ITestAttempt;
 	testResponse?: ITestResponse[];

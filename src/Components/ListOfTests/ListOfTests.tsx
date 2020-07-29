@@ -1,5 +1,5 @@
 import React from "react";
-import {IPagination, ISort, ITestAttemptDetailView, ITestSummary} from "../../State";
+import {IPagination, ISort, ITestAttemptDetailView, ITestSummaryView} from "../../State";
 import {Link} from "react-router-dom";
 import {CallbackButton} from "../General/CallbackButton";
 import {TestSummaryPage} from "../TestSummaryDetail";
@@ -13,8 +13,8 @@ interface InterfaceProps {
 
 interface IState {
 	doesContainShow?: boolean;
-	testSummary?: ITestSummary[];
-	selectedSummary?: ITestSummary;
+	testSummary?: ITestSummaryView[];
+	selectedSummary?: ITestSummaryView;
 	selectedSummaryDetails?: ITestAttemptDetailView[];
 	currentPage?: number;
 	summaryID?: number;
@@ -132,12 +132,13 @@ export class ListOfTests extends React.Component<InterfaceProps, IState> {
 	private buildProductHeaderTRs() {
 		const {testSummary} = this.state;
 		if (!!testSummary && testSummary.length > 0) {
-			return testSummary.map((ts: ITestSummary) => {
+			return testSummary.map((ts: ITestSummaryView) => {
+				console.log(ts);
 				return (
 
 					<tr key={ts.testSummaryID}>
-						<td>TBD</td>
-						<td>TBD</td>
+						<td>{ts.testTopic}</td>
+						<td>{ts.testLevel}</td>
 						<td>{(ts.grade*100)}%</td>
 						<td>{ts.numberCorrect}</td>
 						<td>{ts.duration}</td>
