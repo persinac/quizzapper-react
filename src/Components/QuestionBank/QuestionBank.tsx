@@ -325,9 +325,6 @@ export class QuestionBank extends React.Component<InterfaceProps, IState> {
     private updateQuestionHandler(question: IQuestion): void {
         // console.log(val);
         question.softwareVersion = "";
-        question.documentation = "";
-        question.helperTextOne = "";
-        question.helperTextTwo = "";
         postServerData(question, "question/update", false)
             .then((d: any) => {
                 console.log(d);
