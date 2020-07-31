@@ -65,6 +65,9 @@ export class TestSummaryDetail extends React.Component<InterfaceProps, IState> {
                                     {!!testQuestion ? this.renderSpecializedInput(testQuestion, testResponse, true) : null}
                                 </div>
                             </div>
+                            <hr className="solid" />
+                            {!!testQuestion ? this.renderDocumentation(testQuestion) : null}
+                            {!!testQuestion ? this.renderHelperText(testQuestion) : null}
                         </Card.Body>
                     </Card> : null
                 }
@@ -153,5 +156,44 @@ export class TestSummaryDetail extends React.Component<InterfaceProps, IState> {
             )
         }
         return [].concat.apply([], groupedInput);
+    }
+
+    private renderDocumentation(testQuestion: IQuestion) {
+        return (
+            <div>
+                <h5>Supporting Documentation</h5>
+                <div className={'row'}>
+                    <div className={`col-md-12 mb-3`}>
+                        {
+                            !!testQuestion.documentation ?
+                                <a href={`https://${testQuestion.documentation}`} target="_blank" rel={"noopener noreferrer"}>{testQuestion.documentation}</a> :
+                                <p>No documentation for this question yet!!</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    private renderHelperText(testQuestion: IQuestion) {
+        return (
+            <div>
+                <h5>Hints</h5>
+                <div className={'row'}>
+                    <div className={`col-md-6 mb-3`}>
+                        {
+                            !!testQuestion.helperTextOne ?
+                                <p>{testQuestion.helperTextOne}</p> : null
+                        }
+                    </div>
+                    <div className={`col-md-6 mb-3`}>
+                        {
+                            !!testQuestion.helperTextTwo ?
+                                <p>{testQuestion.helperTextTwo}</p> : null
+                        }
+                    </div>
+                </div>
+            </div>
+        )
     }
 }
