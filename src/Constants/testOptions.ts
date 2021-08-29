@@ -1,7 +1,10 @@
 export const TEST_TOPICS = [
     { value: '', label: '' },
     { value: 'UDCM', label: 'UDCM' },
-    { value: 'Appian Exam', label: 'Appian Exam' }
+    { value: 'Appian Exam', label: 'Appian Exam' },
+    { value: 'Typescript', label: 'Typescript' },
+    { value: 'Fullstack', label: 'Fullstack' },
+    { value: 'Fullstack SDE', label: 'Fullstack SDE' }
 ];
 
 /* Select(s) don't like 0 as a value, so had to go with a trusty #2 */
